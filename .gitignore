@@ -1,0 +1,13 @@
+cmake-build-debug-wsl/
+cmake-build-debug/
+CMakeLists.txt
+cmake_install.cmake
+
+.idea/
+
+*.swp
+*.bak
+a.out
+
+.o
+.exe
