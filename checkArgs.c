@@ -37,10 +37,10 @@ int checkArgs(char inFilename[], char outFilename[], int argc, char **argv, int 
                 *activeLimit =  atoi(optarg);
                 break;
             case 'i':
-                *inFilename = optarg;
+                *inFilename = *optarg;
                 break;
             case 'o':
-                *outFilename = optarg;
+                *outFilename = *optarg;
                 break;
             case '?':
                 if (optopt == 'i' || optopt == 'o')
@@ -53,6 +53,10 @@ int checkArgs(char inFilename[], char outFilename[], int argc, char **argv, int 
             default:
                 abort();
         }
+
+    *activeLimit = *activeLimit > 20 ? 20 : *activeLimit;
+    *processLimit = *processLimit > 20 ? 20 : *processLimit;
+    *activeLimit = *processLimit < *activeLimit ? *processLimit : *activeLimit;
 
     for (i = optind; i < argc; i++)
         fprintf(stderr,"Non-option argument %s\n", argv[i]);

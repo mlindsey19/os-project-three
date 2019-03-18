@@ -6,10 +6,8 @@
 #ifndef PROJECT_THREE_READFILE_H
 #define PROJECT_THREE_READFILE_H
 
-void readFile(const char *, char **);
-#define BUFF_sz 64
+#include "shmFun.h"
 
-extern int processLimit;
-
+void readFile(const char *, int *);
 
 #endif //PROJECT_THREE_READFILE_H

@@ -10,32 +10,28 @@
 #include "readFile.h"
 
 
-void readFile(const char *infile, char **palinList)
+void readFile(const char *infile, int *palinLen)
 {
-    size_t len;
+    int len =0;
+    int totlen = 0;
     char temp[BUFF_sz];
-    static int listSize = 0;
-
-    palinList = ( char** ) malloc( ( size_t ) processLimit * sizeof( char * ) );
-
+    int listSize = 0;
 
     FILE * fptr = fopen(infile, "r");
     if (!fptr){
         perror("could not open file");
         return;
     }
-    while( feof( fptr ) ) {
-        fgets(temp, BUFF_sz, fptr);
-        len = strlen(temp);
-        palinList[ listSize++ ] = ( char * ) malloc( len * sizeof( char ) );
-    }
-}
+    memset( palinList, 0, sizeof(char) * BUFF_sz * PLIMIT );
 
-void freePalinList(char ** palinList){
-    int i = 0;
-    static int listSize;
-    for (; i < listSize; i++){
-        free(palinList[i]);
+    while( !feof( fptr ) ) {
+        fgets(temp, BUFF_sz, fptr);
+        len = (int) strlen(temp) - 1;
+        palinLen[ listSize++ ] = len + totlen;
+        totlen += len;
+        temp[ len ] = 0; //replace newline '\n' with null
+        strcat(palinList, temp);
+        memset( temp, 0, sizeof(temp) );
+
     }
-    free(palinList);
 }

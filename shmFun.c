@@ -7,63 +7,72 @@
 #include <signal.h>
 #include <wait.h>
 #include <sys/shm.h>
+#include <semaphore.h>
 #include "shmFun.h"
+#include <fcntl.h>           /* For O_* constants */
+
 
 
 int shmid;
+sem_t * palin_sem;
+sem_t * nopalin_sem;
+
 
 void sigHandle(int cc){
     cleanSHM();
 }
 void cleanSHM(){
     int i;
-    for (i =0; i< processLimit; i++) {
+    for (i =0; i < processLimit; i++) {
         if (pids[i] > 0) {
 
             kill(pids[i], SIGTERM);
         }
     }
-    fprintf(ofpt, "final clock time: %is %in\n", );
-    deleteMemory(paddr);
-    fclose(ofpt);
+    deleteMemory();
+    //   fclose(ofpt);
+
 }
 void sigChild() {
     pid_t pid;
     int i, status;
     for (i = 0; i < processLimit; i++) {
         if (pids[i] > 0) {
-            pid = waitpid(pids[i], &status, WNOHANG);
-            if (WIFEXITED(status) && WEXITSTATUS(status) == 19 && pid != 0) {
-
+            pid = waitpid(pids[i], &status, 0);
+            if (WIFEXITED(status) && WEXITSTATUS(status) == 808 && pid != 0 ) {
                 pids[i] = 0;
-                fprintf(ofpt, "term pid:%u at %is %in\n", pid, );
+                printf( "term pid:%u\n", pid );
                 active--;
-
             }
-
         }
-
     }
 }
 
-char * createMemory(){
-    char * paddr;
-    shmid = shmget (SHMKEY, BUFF_SZ, 0777 | IPC_CREAT);
+void createMemory(){
+    shmid = shmget (SHMKEY, SHM_sz, 0777 | IPC_CREAT);
 
     if (shmid == -1)
         perror("parent - error shmid");
 
     paddr = ( char * ) ( shmat ( shmid, 0,0));
+    palin_sem = sem_open(SEM_PALIN, O_CREAT, 0644, 1);
+    nopalin_sem = sem_open(SEM_NOPALIN, O_CREAT, 0644, 1);
 
-    return paddr;
+
 }
 
 
-void deleteMemory(char * paddr) {
+void deleteMemory() {
     int er;
 
     shmctl(shmid, IPC_RMID, NULL);
     if ((er = shmdt(paddr)) == -1) {
         perror("err shmdt:");
     }
+
+    sem_unlink(SEM_PALIN);
+    sem_close(palin_sem);
+    sem_unlink(SEM_NOPALIN);
+    sem_close(nopalin_sem);
 }
+

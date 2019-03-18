@@ -7,7 +7,9 @@ cmake_install.cmake
 
 *.swp
 *.bak
-a.out
+*.out
 
-.o
-.exe
+*.o
+*.exe
+palin
+master
