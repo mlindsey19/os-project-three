@@ -24,7 +24,6 @@ void signal(sem_t *);
 void naptime() ;
 void criticalSection(char []);
 sem_t * sem;
-int workIsDone;
 char buf[BUFF_sz];
 int logIndex;
 
@@ -66,10 +65,7 @@ int main(int argc, char * argv[])
 
     int semValue;
 
-    workIsDone = 0;
     for ( i = 0; i < 5; i++ ){
-        if ( workIsDone )
-            break;
         naptime();
         if ( !wairfor ( sem ) )
             continue;
@@ -77,6 +73,7 @@ int main(int argc, char * argv[])
         assert( ( semValue == 0 ) && "sem is not 0 going into critical section");
         criticalSection(outFilename);
         signal(sem);
+        break;
     }
 
 
@@ -131,7 +128,6 @@ void criticalSection(char *outfile){
     int x;
     sem_getvalue(sem, &x);
     writeFile(outfile);
-    workIsDone = 1;
     sleep(2);
     now = time(NULL);
     fprintf(stderr, "pid: %u\t-  exit   -\t\t %s", getpid(),  ctime( &now ) );
